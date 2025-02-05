@@ -51,10 +51,12 @@ export default function Home() {
         className="text-center w-full h-screen gb-cover gb-center flex flex-col items-center justify-center"
         style={{
           backgroundImage: `url(${question[currentQuestionIndex].image})`,
-          backgroundColor: "rgba(0,0,0,0.5",
+          backgroundColor: "rgba(0,0,0,0.5)",
           backgroundBlendMode: "overlay",
-          backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          objectFit: "cover",
         }}
       >
         <div>
