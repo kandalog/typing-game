@@ -4,11 +4,16 @@ import { useState, useEffect } from "react";
 
 const question = [
   { question: "React", image: "./monster1.jpg" },
-  { question: "TypeScript", image: "./monster2.jpg" },
-  { question: "JISOU", image: "./monster3.jpg" },
-  { question: "GitHub", image: "./monster4.jpg" },
-  { question: "Next.js", image: "./monster5.jpg" },
+  // { question: "TypeScript", image: "./monster2.jpg" },
+  // { question: "JISOU", image: "./monster3.jpg" },
+  // { question: "GitHub", image: "./monster4.jpg" },
+  // { question: "Next.js", image: "./monster5.jpg" },
 ];
+
+type Score = {
+  score: number;
+  userName: string;
+};
 
 export default function Home() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -19,8 +24,9 @@ export default function Home() {
   const [startTime, setStartTime] = useState(0);
   const [totalTime, setTotalTime] = useState(0);
   const [score, setScore] = useState(0);
+  const [scores, setScores] = useState<Score[]>([]);
 
-  const addResult = (userName: string, startTime: number) => {
+  const addResult = async (userName: string, startTime: number) => {
     const endTime = Date.now();
     const totalTime = endTime - startTime;
     const timeInSeconds = totalTime / 1000;
@@ -28,11 +34,28 @@ export default function Home() {
     const timeDeduction = timeInSeconds * 100;
     const score = baseScore - timeDeduction;
 
+    await fetch("/api/result", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        score: score,
+        userName: userName,
+      }),
+    });
+
     return { totalTime, score };
   };
 
+  const fetchScores = async () => {
+    const response = await fetch("/api/result");
+    const data = await response.json();
+    return data;
+  };
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = async (e: KeyboardEvent) => {
       const currentQuestion = question[currentQuestionIndex];
       if (
         e.key.toLowerCase() ===
@@ -42,10 +65,14 @@ export default function Home() {
       }
       if (currentPosition === currentQuestion.question.length - 1) {
         if (currentQuestionIndex === question.length - 1) {
-          const { totalTime } = addResult(userName, startTime);
+          const { totalTime, score } = await addResult(userName, startTime);
           setTotalTime(totalTime);
-          setScore(totalTime);
+          setScore(score);
           setIsCompleted(true);
+
+          const scores = await fetchScores();
+          console.log(scores);
+          setScores(scores);
         } else {
           setCurrentQuestionIndex((prev) => prev + 1);
           setCurrentPosition(0);
@@ -104,9 +131,29 @@ export default function Home() {
               <span>{(totalTime / 1000).toFixed(2)}</span>
               seconds
             </p>
+            <p>Score: {score}</p>
+          </div>
+          <div className="mt-8">
+            <h3>Ranking</h3>
+            {scores.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8">
+                <p>Loading scores...</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {scores &&
+                  scores.map((score, index) => (
+                    <div key={index} className="border-b border-gray-700 pb-2">
+                      <span>
+                        {index + 1}.{score.userName}
+                      </span>
+                      <span className="text-red-500">{score.score}</span>
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
         </div>
-        ゲーム終了
       </main>
     );
   }
