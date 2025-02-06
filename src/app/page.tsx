@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 
 const question = [
   { question: "React", image: "./monster1.jpg" },
-  // { question: "TypeScript", image: "./monster2.jpg" },
-  // { question: "JISOU", image: "./monster3.jpg" },
-  // { question: "GitHub", image: "./monster4.jpg" },
-  // { question: "Next.js", image: "./monster5.jpg" },
+  { question: "TypeScript", image: "./monster2.jpg" },
+  { question: "JISOU", image: "./monster3.jpg" },
+  { question: "GitHub", image: "./monster4.jpg" },
+  { question: "Next.js", image: "./monster5.jpg" },
 ];
 
 type Score = {
@@ -51,7 +51,7 @@ export default function Home() {
   const fetchScores = async () => {
     const response = await fetch("/api/result");
     const data = await response.json();
-    return data;
+    return data.result;
   };
 
   useEffect(() => {
@@ -145,7 +145,7 @@ export default function Home() {
                   scores.map((score, index) => (
                     <div key={index} className="border-b border-gray-700 pb-2">
                       <span>
-                        {index + 1}.{score.userName}
+                        {index + 1}. {score.userName + " "}
                       </span>
                       <span className="text-red-500">{score.score}</span>
                     </div>
