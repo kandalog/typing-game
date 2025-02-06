@@ -147,7 +147,9 @@ export default function Home() {
                       <span>
                         {index + 1}. {score.userName + " "}
                       </span>
-                      <span className="text-red-500">{score.score}</span>
+                      <span className="text-red-500">
+                        {Math.round(score.score * 100) / 100}
+                      </span>
                     </div>
                   ))}
               </div>
