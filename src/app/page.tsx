@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const question = [
   { question: "React", image: "./monster1.jpg" },
@@ -25,6 +25,23 @@ export default function Home() {
   const [totalTime, setTotalTime] = useState(0);
   const [score, setScore] = useState(0);
   const [scores, setScores] = useState<Score[]>([]);
+  const bgmRef = useRef<HTMLAudioElement>(null);
+  const shotSoundRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    bgmRef.current = new Audio("/bgm.md3");
+    bgmRef.current.loop = true;
+    shotSoundRef.current = new Audio("shot.mp3");
+  }, []);
+
+  useEffect(() => {
+    if (isStarted && bgmRef.current) {
+      bgmRef.current.play();
+    }
+    if (isCompleted && bgmRef.current) {
+      bgmRef.current.pause();
+    }
+  }, [isStarted, isCompleted]);
 
   const addResult = async (userName: string, startTime: number) => {
     const endTime = Date.now();
@@ -65,6 +82,10 @@ export default function Home() {
       }
       if (currentPosition === currentQuestion.question.length - 1) {
         if (currentQuestionIndex === question.length - 1) {
+          if (shotSoundRef.current) {
+            shotSoundRef.current.currentTime = 0;
+            shotSoundRef.current.play();
+          }
           const { totalTime, score } = await addResult(userName, startTime);
           setTotalTime(totalTime);
           setScore(score);
@@ -74,6 +95,10 @@ export default function Home() {
           console.log(scores);
           setScores(scores);
         } else {
+          if (shotSoundRef.current) {
+            shotSoundRef.current.currentTime = 0;
+            shotSoundRef.current.play();
+          }
           setCurrentQuestionIndex((prev) => prev + 1);
           setCurrentPosition(0);
         }
